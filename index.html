@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>신수부 — 나에게 필요한 기운 뽑기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Gowun+Batang:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F1E7CC; --card:#F8F1DE; --ink:#2E2418; --ink-soft:#5E4E38;
+  --seal:#A82A1C; --seal-on:#FFFFFF; --line:#CDBB8E;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1B1813; --card:#26211A; --ink:#EFE6D2; --ink-soft:#C2B49A;
+    --seal:#D9574A; --seal-on:#1B1813; --line:#4C4333; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1B1813; --card:#26211A; --ink:#EFE6D2; --ink-soft:#C2B49A;
+  --seal:#D9574A; --seal-on:#1B1813; --line:#4C4333; color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Gowun Batang","Nanum Myeongjo","Apple SD Gothic Neo",serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.hanja{font-family:"Song Myung","Gowun Batang",serif}
+main{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 20px}
+.screen{width:100%;max-width:640px;display:none;flex-direction:column;align-items:center;gap:24px;text-align:center;animation:fade .45s ease}
+.screen.on{display:flex}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* frame like a talisman */
+.frame{width:100%;border:3px solid var(--seal);padding:6px;background:var(--card)}
+.frame>.inner{border:1px solid var(--seal);padding:28px 22px;display:flex;flex-direction:column;align-items:center;gap:18px}
+
+.eyebrow{color:var(--seal);letter-spacing:.3em;font-size:.9rem}
+h1{margin:0;font-weight:400;font-size:clamp(2.6rem,9vw,4rem);line-height:1.1;color:var(--seal)}
+h1 small{display:block;font-family:"Gowun Batang",serif;font-size:1.05rem;color:var(--ink);letter-spacing:.05em;margin-top:10px}
+.lead{margin:0;color:var(--ink-soft);line-height:1.8;font-size:1.05rem}
+
+.compass{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(100%,340px)}
+.compass .cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.beast{width:100%;height:100%;border-radius:50%;background:var(--c);color:var(--on);display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--edge,transparent)}
+.beast .hanja{font-size:clamp(1.3rem,5vw,1.7rem);line-height:1.1}
+.beast span:last-child{font-size:.75rem;opacity:.9}
+.seal{width:62%;aspect-ratio:1;background:var(--seal);color:var(--seal-on);display:flex;align-items:center;justify-content:center;font-size:clamp(1.6rem,6vw,2.2rem)}
+
+.btn{appearance:none;border:none;cursor:pointer;font:inherit;min-height:56px;padding:14px 36px;font-size:1.15rem;font-weight:700;background:var(--seal);color:var(--seal-on);letter-spacing:.08em}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line);font-weight:400;font-size:1rem;min-height:48px;padding:10px 22px}
+.btn:focus-visible,.opt:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+/* question */
+.progress{display:flex;gap:8px;justify-content:center}
+.progress i{width:34px;height:6px;background:var(--line)}
+.progress i.done{background:var(--seal)}
+.qnum{color:var(--seal);letter-spacing:.2em;font-size:.95rem}
+.qtext{margin:0;font-size:clamp(1.35rem,4.6vw,1.75rem);line-height:1.55;font-weight:700;word-break:keep-all}
+.opts{display:flex;flex-direction:column;gap:12px;width:100%}
+.opt{appearance:none;font:inherit;text-align:left;cursor:pointer;width:100%;min-height:64px;padding:16px 20px;background:var(--card);color:var(--ink);border:1px solid var(--line);font-size:1.08rem;line-height:1.55;display:flex;gap:14px;align-items:flex-start;word-break:keep-all}
+.opt b{color:var(--seal);font-family:"Song Myung",serif;font-weight:400;font-size:1.2rem;line-height:1.3;flex:none}
+.opt:active,.opt.pick{border-color:var(--seal);background:color-mix(in srgb,var(--seal) 12%,var(--card))}
+.qfoot{display:flex;justify-content:space-between;width:100%}
+
+/* draw */
+.tube{width:150px;height:230px}
+.tube.shake{animation:shake .22s ease-in-out infinite}
+@keyframes shake{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+.stick{transition:transform .7s cubic-bezier(.2,1.4,.4,1)}
+.stick.up{transform:translateY(-70px)}
+
+/* result */
+.result .badge{width:min(62vw,230px);aspect-ratio:1;border-radius:50%;background:var(--c);color:var(--on);border:3px solid var(--edge,var(--c));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.result .badge .hanja{font-size:clamp(3rem,13vw,4.6rem);line-height:1}
+.result .badge img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.rname{margin:0;font-size:clamp(1.6rem,6vw,2.1rem);font-weight:700}
+.rname em{font-style:normal;color:var(--seal)}
+.rmeta{color:var(--ink-soft);letter-spacing:.15em;font-size:.95rem}
+.rdesc{margin:0;line-height:1.85;font-size:1.08rem;word-break:keep-all;white-space:pre-line}
+.rmsg{margin:0;padding:16px 18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:1.15rem;line-height:1.8;width:100%;word-break:keep-all;white-space:pre-line}
+.rhanbok{font-size:.95rem;color:var(--ink-soft)}
+.pickup{display:flex;align-items:center;gap:14px;background:var(--seal);color:var(--seal-on);padding:14px 22px;font-size:1.1rem;font-weight:700;text-align:left}
+.pickup .num{font-family:"Song Myung",serif;font-size:2.2rem;line-height:1;font-weight:400}
+.count{color:var(--ink-soft);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+
+<!-- 시작 -->
+<section class="screen on" id="home" aria-label="시작 화면">
+  <div class="frame"><div class="inner">
+    <div class="eyebrow">四 神 符</div>
+    <h1 class="hanja">신수부<small>다섯 개의 질문, 나에게 필요한 기운</small></h1>
+    <div class="compass" aria-hidden="true" id="compass"></div>
+    <p class="lead">질문에 솔직하게 답하면<br>지금 나에게 부족한 기운을 채워 줄<br>수호신수가 정해져요.</p>
+    <button class="btn" id="startBtn">기운 알아보기</button>
+  </div></div>
+</section>
+
+<!-- 질문 -->
+<section class="screen" id="quiz" aria-label="질문">
+  <div class="progress" id="progress"></div>
+  <div class="qnum hanja" id="qnum"></div>
+  <p class="qtext" id="qtext"></p>
+  <div class="opts" id="opts"></div>
+  <div class="qfoot">
+    <button class="btn ghost" id="backBtn">이전 질문</button>
+    <button class="btn ghost" id="homeBtn1">처음으로</button>
+  </div>
+</section>
+
+<!-- 뽑기 -->
+<section class="screen" id="draw" aria-label="산통 뽑기">
+  <div class="eyebrow">算 筒</div>
+  <svg class="tube" id="tube" viewBox="0 0 150 230" role="img" aria-label="산통을 흔드는 그림">
+    <g class="stick" id="stick">
+      <rect x="69" y="20" width="12" height="120" rx="3" fill="#C9A86A"/>
+      <rect x="69" y="20" width="12" height="26" rx="3" id="stickTip" fill="#C9A86A"/>
+    </g>
+    <rect x="48" y="30" width="9" height="110" rx="3" fill="#B8975A"/>
+    <rect x="92" y="34" width="9" height="106" rx="3" fill="#B8975A"/>
+    <rect x="58" y="26" width="9" height="114" rx="3" fill="#C2A163"/>
+    <rect x="82" y="28" width="9" height="112" rx="3" fill="#C2A163"/>
+    <rect x="35" y="90" width="80" height="130" rx="10" fill="#8C6A3C"/>
+    <rect x="35" y="90" width="80" height="16" rx="6" fill="#6E5230"/>
+    <rect x="35" y="196" width="80" height="12" fill="#6E5230"/>
+    <text x="75" y="160" text-anchor="middle" font-family="Song Myung, serif" font-size="30" fill="#F1E7CC">符</text>
+  </svg>
+  <p class="lead" id="drawText">산통을 흔들어 수호신수를 부르는 중…</p>
+</section>
+
+<!-- 결과 -->
+<section class="screen result" id="result" aria-label="결과" aria-live="polite">
+  <div class="frame"><div class="inner">
+    <div class="rmeta" id="rmeta"></div>
+    <div class="badge" id="rbadge"></div>
+    <p class="rname" id="rname"></p>
+    <p class="rdesc" id="rdesc"></p>
+    <p class="rmsg" id="rmsg"></p>
+    <div class="rhanbok" id="rhanbok"></div>
+    <div class="pickup"><span class="num" id="rnum"></span><span id="rpick"></span></div>
+  </div></div>
+  <button class="btn" id="homeBtn2">처음으로</button>
+  <div class="count" id="count"></div>
+</section>
+
+</main>
+<script>
+/* 캐릭터 그림이 생기면 img에 이미지 주소(data: URI 등)를 넣으면 결과 원 안에 표시돼요. */
+const BEASTS = {
+  cheong:{name:'청룡', hanja:'靑龍', dir:'東', el:'목(木)', c:'#1E4D8C', on:'#FFFFFF', no:'一', noText:'1',
+    need:'시작', desc:'생각은 많은데 첫발이 무거운 당신. 동쪽의 청룡이 새싹처럼 돋아나는 시작의 기운을 나눠 줄게요.',
+    msg:'망설임은 여기까지. 첫걸음은 내가 함께할게.', hanbok:'청색 저고리 · 구름 금박', img:''},
+  ju:{name:'주작', hanja:'朱雀', dir:'南', el:'화(火)', c:'#B73A26', on:'#FFFFFF', no:'二', noText:'2',
+    need:'표현', desc:'마음속 말을 꾹 담아 두는 당신. 남쪽의 주작이 불꽃처럼 피어나는 표현의 기운을 나눠 줄게요.',
+    msg:'네 안의 목소리를 꺼내 봐. 세상은 들을 준비가 됐어.', hanbok:'다홍 치마 · 깃털 노리개', img:''},
+  baek:{name:'백호', hanja:'白虎', dir:'西', el:'금(金)', c:'#EDE9DE', on:'#2E2A24', edge:'#7A7468', no:'三', noText:'3',
+    need:'결단', desc:'선택 앞에서 오래 머뭇거리는 당신. 서쪽의 백호가 단단한 쇠처럼 곧은 결단의 기운을 나눠 줄게요.',
+    msg:'갈림길에서 머뭇대지 마. 네 선택이 길이 된다.', hanbok:'흰 도포 · 호랑이 흉배', img:''},
+  hyeon:{name:'현무', hanja:'玄武', dir:'北', el:'수(水)', c:'#2A2A30', on:'#FFFFFF', edge:'#6A6A72', no:'四', noText:'4',
+    need:'신중', desc:'생각보다 몸이 먼저 나가는 당신. 북쪽의 현무가 깊은 물처럼 차분한 신중의 기운을 나눠 줄게요.',
+    msg:'한 박자 쉬어 가도 괜찮아. 깊은 물이 멀리 간다.', hanbok:'먹색 쾌자 · 거북 등껍질 문양', img:''}
+};
+
+/* 각 보기는 그 성향에 '부족한 기운'의 신수를 가리켜요. */
+const QUESTIONS = [
+  {q:'조별 과제 첫 회의 날, 나는?', o:[
+    ['아이디어부터 막 던지고 역할 분담까지 내가 정해 버린다','hyeon'],
+    ['다들 의견을 낼 때까지 조용히 듣기만 한다','ju'],
+    ['좋은 의견이 너무 많아서 하나로 못 고르겠다','baek'],
+    ['시작도 안 했는데 벌써 기운이 빠진다','cheong']]},
+  {q:'주말에 갑자기 하루가 통째로 비었다.', o:[
+    ['해 보고 싶던 걸 검색만 하다가 결국 누워 있는다','cheong'],
+    ['보고 싶은 친구가 있는데 연락은 끝내 못 한다','ju'],
+    ['계획을 세웠다 지웠다 하다가 하루가 끝난다','baek'],
+    ['즉흥으로 나갔다가 지갑이 텅 비어서 돌아온다','hyeon']]},
+  {q:'열심히 만든 작업을 보고 친구가 "음… 좀 별로인데?"라고 했다.', o:[
+    ['웃으며 넘기지만 집에 와서 계속 그 말이 떠오른다','ju'],
+    ['그 자리에서 바로 "왜? 어디가?" 하고 따진다','hyeon'],
+    ['고칠지 말지 결정을 못 하고 붙잡고만 있다','baek'],
+    ['의욕이 뚝 떨어져서 작업 파일을 닫아 버린다','cheong']]},
+  {q:'친구들과 식당에 왔다. 메뉴를 고르는 순간 나는?', o:[
+    ['메뉴판만 한참 보다가 결국 "아무거나"','baek'],
+    ['먹고 싶은 게 있어도 다들 고른 걸 따라간다','ju'],
+    ['처음 눈에 들어온 메뉴를 바로 시킨다','hyeon'],
+    ['새로운 건 겁나서 늘 먹던 것만 시킨다','cheong']]},
+  {q:'요즘의 나와 가장 가까운 말은?', o:[
+    ['"시작이 반이라는데, 그 반이 안 돼."','cheong'],
+    ['"속에 쌓인 말이 너무 많아."','ju'],
+    ['"결정 장애? 그거 나야."','baek'],
+    ['"일단 저질렀고, 지금 수습 중이야."','hyeon']]}
+];
+const LETTERS = ['一','二','三','四'];
+const IDLE_MS = 90000, RESULT_MS = 60000;
+
+const $ = id => document.getElementById(id);
+let answers = [], idx = 0, idleTimer = null, countTimer = null;
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  window.scrollTo(0,0);
+}
+function beastStyle(el, b){
+  el.style.setProperty('--c', b.c); el.style.setProperty('--on', b.on);
+  el.style.setProperty('--edge', b.edge || b.c);
+}
+function buildCompass(){
+  const layout = [null,'hyeon',null,'baek','SEAL','cheong',null,'ju',null];
+  const box = $('compass'); box.innerHTML = '';
+  layout.forEach(k => {
+    const cell = document.createElement('div'); cell.className = 'cell';
+    if (k === 'SEAL'){ cell.innerHTML = '<div class="seal hanja">符</div>'; }
+    else if (k){
+      const b = BEASTS[k];
+      const d = document.createElement('div'); d.className = 'beast'; beastStyle(d, b);
+      d.innerHTML = `<span class="hanja">${b.hanja}</span><span>${b.dir} · ${b.name}</span>`;
+      cell.appendChild(d);
+    }
+    box.appendChild(cell);
+  });
+}
+function resetIdle(){
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(goHome, IDLE_MS);
+}
+function goHome(){
+  clearTimeout(idleTimer); clearInterval(countTimer);
+  answers = []; idx = 0; show('home');
+}
+function renderQuestion(){
+  const q = QUESTIONS[idx];
+  $('progress').innerHTML = QUESTIONS.map((_,i) => `<i class="${i < idx ? 'done' : ''}"></i>`).join('');
+  $('qnum').textContent = `第 ${['一','二','三','四','五'][idx]} 問`;
+  $('qtext').textContent = q.q;
+  const box = $('opts'); box.innerHTML = '';
+  q.o.forEach(([text,key], i) => {
+    const b = document.createElement('button'); b.className = 'opt';
+    if (answers[idx] === key) b.classList.add('pick');
+    b.innerHTML = `<b>${LETTERS[i]}</b><span></span>`;
+    b.querySelector('span').textContent = text;
+    b.addEventListener('click', () => choose(key, b));
+    box.appendChild(b);
+  });
+  $('backBtn').style.visibility = idx === 0 ? 'hidden' : 'visible';
+  show('quiz'); resetIdle();
+}
+function choose(key, el){
+  el.classList.add('pick');
+  answers[idx] = key;
+  setTimeout(() => {
+    if (idx < QUESTIONS.length - 1){ idx++; renderQuestion(); }
+    else draw();
+  }, 220);
+}
+function draw(){
+  clearTimeout(idleTimer);
+  const score = {cheong:0, ju:0, baek:0, hyeon:0};
+  answers.forEach(k => score[k]++);
+  const max = Math.max(...Object.values(score));
+  const top = Object.keys(score).filter(k => score[k] === max);
+  const key = top[Math.floor(Math.random() * top.length)];
+  const b = BEASTS[key];
+
+  const stick = $('stick'), tube = $('tube');
+  stick.classList.remove('up'); $('stickTip').setAttribute('fill', '#C9A86A');
+  $('drawText').textContent = top.length > 1
+    ? '기운이 팽팽해요. 산통이 직접 골라 줄 거예요…'
+    : '산통을 흔들어 수호신수를 부르는 중…';
+  show('draw'); tube.classList.add('shake');
+  setTimeout(() => {
+    tube.classList.remove('shake');
+    $('stickTip').setAttribute('fill', b.edge && b.c === '#EDE9DE' ? '#FFFFFF' : b.c);
+    stick.classList.add('up');
+    $('drawText').textContent = `${b.name}이(가) 나왔어요!`;
+  }, 2000);
+  setTimeout(() => showResult(b), 3300);
+}
+function showResult(b){
+  const badge = $('rbadge'); beastStyle(badge, b);
+  badge.innerHTML = b.img
+    ? `<img src="${b.img}" alt="${b.name} 캐릭터">`
+    : `<span class="hanja">${b.hanja}</span><span>${b.name}</span>`;
+  $('rmeta').textContent = `${b.dir} · ${b.el}`;
+  $('rname').innerHTML = `지금 당신에게 필요한 건<br><em>${b.need}의 기운</em>`;
+  const breakLines = s => s.replace(/([.?!])\s+/g, '$1\n');
+  $('rdesc').textContent = breakLines(b.desc);
+  $('rmsg').textContent = `“${breakLines(b.msg)}”`;
+  $('rhanbok').textContent = `${b.name}의 한복 · ${b.hanbok}`;
+  $('rnum').textContent = '符';
+  $('rpick').textContent = `${b.name} 부적을 한 장 가져가세요`;
+  show('result');
+  let left = RESULT_MS / 1000;
+  $('count').textContent = `${left}초 뒤 처음 화면으로 돌아가요`;
+  clearInterval(countTimer);
+  countTimer = setInterval(() => {
+    left--;
+    if (left <= 0){ goHome(); return; }
+    $('count').textContent = `${left}초 뒤 처음 화면으로 돌아가요`;
+  }, 1000);
+}
+
+$('startBtn').addEventListener('click', () => { answers = []; idx = 0; renderQuestion(); });
+$('backBtn').addEventListener('click', () => { if (idx > 0){ idx--; renderQuestion(); } });
+$('homeBtn1').addEventListener('click', goHome);
+$('homeBtn2').addEventListener('click', goHome);
+['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => {
+  if ($('quiz').classList.contains('on')) resetIdle();
+}));
+buildCompass();
+</script>
+</body>
+</html>
